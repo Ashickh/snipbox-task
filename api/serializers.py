@@ -41,3 +41,25 @@ class SnippetDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Snippet
         fields = ['id', 'title', 'note', 'created_at', 'updated_at', 'tags']
+
+
+class SnippetUpdateSerializer(serializers.ModelSerializer):
+    tag_titles = serializers.ListField(child=serializers.CharField(), write_only=True)
+
+    class Meta:
+        model = Snippet
+        fields = ['title', 'note', 'tag_titles']
+
+    def update(self, instance, validated_data):
+        tag_titles = validated_data.pop('tag_titles', [])
+        instance.title = validated_data.get('title', instance.title)
+        instance.note = validated_data.get('note', instance.note)
+        instance.save()
+
+        tags = []
+        for title in tag_titles:
+            tag, _ = Tag.objects.get_or_create(title=title)
+            tags.append(tag)
+        instance.tags.set(tags)
+
+        return instance

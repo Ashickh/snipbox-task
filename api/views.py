@@ -1,5 +1,5 @@
 from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Snippet
@@ -36,3 +36,19 @@ class SnippetDetailAPIView(RetrieveAPIView):
         if obj.created_by != self.request.user:
             raise PermissionDenied("You do not have permission to view this snippet.")
         return obj
+
+
+
+class SnippetUpdateAPIView(RetrieveUpdateAPIView):
+    queryset = Snippet.objects.all()
+    serializer_class = SnippetUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        obj = super().get_object()
+        if obj.created_by != self.request.user:
+            raise PermissionDenied("You do not have permission to update this snippet.")
+        return obj
+
+    def get_serializer_context(self):
+        return {'request': self.request}

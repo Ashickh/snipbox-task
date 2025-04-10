@@ -7,4 +7,6 @@ urlpatterns = [
     path('snippets/<int:pk>/', SnippetDetailAPIView.as_view(), name='snippet-detail'),
     path('snippets/<int:pk>/update/', SnippetUpdateAPIView.as_view(), name='snippet-update'),
     path('snippets/<int:pk>/delete/', SnippetDeleteAPIView.as_view(), name='snippet-delete'),
+    path('tags/', TagListAPIView.as_view(), name='tag-list'),
+    path('tags/<int:pk>/', TagDetailAPIView.as_view(), name='tag-detail'),
 ]

@@ -1,11 +1,12 @@
 from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView, DestroyAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, RetrieveUpdateAPIView, DestroyAPIView, ListAPIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Snippet
 from rest_framework.exceptions import PermissionDenied
 from .serializers import *
 from rest_framework import status
+from .models import Tag
 
 class SnippetOverviewAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -72,3 +73,21 @@ class SnippetDeleteAPIView(DestroyAPIView):
         remaining_snippets = Snippet.objects.filter(created_by=request.user)
         data = SnippetDetailSerializer(remaining_snippets, many=True).data
         return Response(data, status=status.HTTP_200_OK)
+
+
+
+class TagListAPIView(ListAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [IsAuthenticated]
+
+class TagDetailAPIView(RetrieveAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+    permission_classes = [IsAuthenticated]
+
+    def retrieve(self, request, *args, **kwargs):
+        tag = self.get_object()
+        snippets = tag.snippet_set.filter(created_by=request.user)
+        data = SnippetDetailSerializer(snippets, many=True).data
+        return Response(data)

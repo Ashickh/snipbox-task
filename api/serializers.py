@@ -28,3 +28,16 @@ class SnippetCreateSerializer(serializers.ModelSerializer):
             snippet.tags.add(tag)
 
         return snippet
+
+
+class TagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tag
+        fields = ['title']
+
+class SnippetDetailSerializer(serializers.ModelSerializer):
+    tags = TagSerializer(many=True)
+
+    class Meta:
+        model = Snippet
+        fields = ['id', 'title', 'note', 'created_at', 'updated_at', 'tags']

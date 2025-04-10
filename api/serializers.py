@@ -7,3 +7,24 @@ class SnippetOverviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Snippet
         fields = ['id', 'title', 'detail_url']
+
+
+from .models import Snippet, Tag
+
+class SnippetCreateSerializer(serializers.ModelSerializer):
+    tag_titles = serializers.ListField(child=serializers.CharField(), write_only=True)
+
+    class Meta:
+        model = Snippet
+        fields = ['title', 'note', 'tag_titles']
+
+    def create(self, validated_data):
+        tag_titles = validated_data.pop('tag_titles', [])
+        user = self.context['request'].user
+        snippet = Snippet.objects.create(created_by=user, **validated_data)
+
+        for title in tag_titles:
+            tag, _ = Tag.objects.get_or_create(title=title)
+            snippet.tags.add(tag)
+
+        return snippet
